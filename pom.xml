@@ -20,6 +20,13 @@
     <exec.mainClass>cicd.demo.app.Application</exec.mainClass>
   </properties>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <url>file://${project.basedir}/m2/repository</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <repositories>
     <repository>
       <id>jcenter.bintray.com</id>
@@ -83,6 +90,25 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.oracle.osscan</groupId>
+        <artifactId>osscan-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>scan</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <osscanServiceUrl>http://100.107.237.221:30007/20180828</osscanServiceUrl>
+          <criticalScore>1.0</criticalScore>
+          <action>fail</action>
+          <authMechanism>none</authMechanism>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>io.micronaut.build</groupId>
         <artifactId>micronaut-maven-plugin</artifactId>
