@@ -95,7 +95,7 @@ jobs:
           KUBECTL_VERSION: "1.15"
         with:
           # The kubectl command to set the image 
-          args: -n ${{ github.event.repository.name }} set image deployment/${{ github.event.repository.name }} ${{ github.event.repository.name }}=${{github.repository}}:${{github.sha}}
+          args: -n ${{ github.event.repository.name }} set image deployment/${{ github.event.repository.name }} ${{ github.event.repository.name }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
       # This steps checks the status of the deployment and then return the status of the deployment ("Failed" or "succeeded") and also return 0 if the deployment succeeded and the 1 if not
       - name: check deployment status
         id: status
