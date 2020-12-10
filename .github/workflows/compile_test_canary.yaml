@@ -74,7 +74,7 @@ jobs:
           push: true
           context: .
           # We use the sha of the commit as tag 
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}:${{github.sha}}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
   # the goal of this job is sets the new image of the application in the cluster
   canary:
     name: deploying the new app to the canary
