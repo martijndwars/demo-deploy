@@ -7,7 +7,7 @@ on:
 
 jobs:
   # The goal of this job is compile, test and create the package
-  compile_test_package:
+  maven_job:
     # odemo is a tag of the Self-hosted runner, to run this Jobs inside the tagged VM
     runs-on: odemo
     # Those jobs are triggered only if the target branch is master
@@ -43,9 +43,9 @@ jobs:
   push_to_dockerhub:
     name: Building a Docker image and pushing it to DockerHub
     runs-on: ubuntu-18.04
-    # this job runs only when the compile_test_package job is done and succeeded
+    # this job runs only when the maven_job job is done and succeeded
     needs:
-      - compile_test_package
+      - maven_job
     steps:
       # download the jar file that we uploaded in the previous job
       - name: Download artifact jar
@@ -58,7 +58,7 @@ jobs:
         with:
           name: Dockerfile
       # use the default Buildx configuration
-      - name: set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       # Login to Dockerhub so we can later push to image
       - name: Login to DockerHub
@@ -77,7 +77,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
   # the goal of this job is sets the new image of the application in the cluster
   canary:
-    name: deploying the new app to the canary
+    name: Deploying the new application to the canary
     runs-on: odemo
     # configure an output (status), this output is a string that store the status of the Deployemnt ("Failed" or "succeeded")
     outputs:
@@ -87,7 +87,7 @@ jobs:
       - push_to_dockerhub
     steps:
       # set the new pushed image 
-      - name: deploy to cluster
+      - name: Deploy to cluster
         uses: steebchen/kubectl@v1.0.0
         env:
           # Inject the cluster's configuration
@@ -97,7 +97,7 @@ jobs:
           # The kubectl command to set the image 
           args: -n ${{ github.event.repository.name }} set image deployment/${{ github.event.repository.name }} ${{ github.event.repository.name }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
       # This steps checks the status of the deployment and then return the status of the deployment ("Failed" or "succeeded") and also return 0 if the deployment succeeded and the 1 if not
-      - name: check deployment status
+      - name: Check deployment status
         id: status
         uses: ilanssari/okubectl@check_iterations
         env:
@@ -105,17 +105,17 @@ jobs:
           PROJECT_NAME: ${{ github.event.repository.name }}   
   # the goal of this job is write a comment with the status of the deployment in the PR
   comment_to_pr:
-    name: write the status of the deployment on the PR
+    name: Write the status of the deployment on the PR
     runs-on: ubuntu-18.04
     # this jobs always even if the previous job "canary" doesn't succeeded
     if: ${{ always() }}
     needs: canary
     steps:
-      - name: write the status on the PR
+      - name: Write the status on the PR
         uses: mshick/add-pr-comment@v1
         with:
           message: |
-            The canary ${{ needs.canary.outputs.status }} !
+            The canary ${{ needs.canary.outputs.status }}!
           repo-token: ${{ github.token }}
           repo-token-user-login: 'github-actions[bot]' # The user.login
           allow-repeats: true

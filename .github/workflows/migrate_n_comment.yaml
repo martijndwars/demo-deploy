@@ -6,7 +6,7 @@ on:
 jobs:
   # The goal of this job is the migrate from the canary to the production
   deploy_to_cluster:
-    name: deploying the new app to the cluster
+    name: Deploying the new app to the cluster
     runs-on: odemo
     #  Those jobs are triggered only if the target branch is master and the PR is merged
     if: ${{ github.base_ref == 'master' && github.event.pull_request.merged == true }}
@@ -14,14 +14,14 @@ jobs:
       status: ${{ steps.status.outputs.status }}
     steps:
       # Open the gate to migrate to the production
-      - name: confirm deployment 
+      - name: Confirm deployment 
         uses: steebchen/kubectl@v1.0.0
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
           args: -n default exec -it oraclelinux-77bb5b6ccb-5smsh -- sh -c './open_gate_osscan_demo.sh'
       # check and store the status of the Deployment
-      - name: check deployment status
+      - name: Check deployment status
         id: status
         uses: ilanssari/okubectl@check_deployment
         env:
@@ -29,16 +29,15 @@ jobs:
           PROJECT_NAME: ${{ github.event.repository.name }}
   # Write the status of the migration on the PR
   comment_to_pr:
-    name: write the status of the deployment on the PR
+    name: Write the status of the deployment on the PR
     runs-on: ubuntu-18.04
     needs: deploy_to_cluster
     steps:
-      - name: write the status on the PR
+      - name: Write the status on the PR
         uses: mshick/add-pr-comment@v1
         with:
           message: |
-            The deployment ${{ needs.deploy_to_cluster.outputs.status }} !
+            The deployment ${{ needs.deploy_to_cluster.outputs.status }}!
           repo-token: ${{ github.token }}
           repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
           allow-repeats: true # the default is false
-    
