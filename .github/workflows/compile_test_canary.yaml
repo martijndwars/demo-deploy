@@ -8,6 +8,7 @@ on:
 jobs:
   # The goal of this job is compile, test and create the package
   maven_job:
+    name: Compile, Test, and Package
     # odemo is a tag of the Self-hosted runner, to run this Jobs inside the tagged VM
     runs-on: odemo
     # Those jobs are triggered only if the target branch is master
