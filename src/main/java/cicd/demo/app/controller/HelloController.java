@@ -23,6 +23,6 @@ public class HelloController {
                 throw new RuntimeException("Expected Guava 23.6-jre, but got: " + guavaVersion);
             }
         }
-        return "Hello World 105";
+        return "Hello World 106";
     }
 }
