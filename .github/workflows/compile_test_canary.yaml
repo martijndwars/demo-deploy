@@ -89,21 +89,13 @@ jobs:
     steps:
       # set the new pushed image 
       - name: Deploy to cluster
-        uses: steebchen/kubectl@v1.0.0
-        env:
-          # Inject the cluster's configuration
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          KUBECTL_VERSION: "1.15"
-        with:
-          # The kubectl command to set the image 
-          args: -n ${{ github.event.repository.name }} set image deployment/${{ github.event.repository.name }} ${{ github.event.repository.name }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
+        run: kubectl -n ${{ github.event.repository.name }} set image deployment/${{ github.event.repository.name }} ${{ github.event.repository.name }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{github.sha}}
       # This steps checks the status of the deployment and then return the status of the deployment ("Failed" or "succeeded") and also return 0 if the deployment succeeded and the 1 if not
       - name: Check deployment status
         id: status
-        uses: ilanssari/okubectl@check_iterations
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          PROJECT_NAME: ${{ github.event.repository.name }}   
+          PROJECT_NAME: ${{ github.event.repository.name }}
+        run: chmod +x "${GITHUB_WORKSPACE}/.github/check_iterations.sh" && bash -c "${GITHUB_WORKSPACE}/.github/check_iterations.sh"
   # the goal of this job is write a comment with the status of the deployment in the PR
   comment_to_pr:
     name: Write the status of the deployment on the PR

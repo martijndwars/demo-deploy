@@ -14,19 +14,14 @@ jobs:
       status: ${{ steps.status.outputs.status }}
     steps:
       # Open the gate to migrate to the production
-      - name: Confirm deployment 
-        uses: steebchen/kubectl@v1.0.0
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-        with:
-          args: -n default exec -it oraclelinux-77bb5b6ccb-5smsh -- sh -c './open_gate_osscan_demo.sh'
+      - name: Confirm deployment
+        run: kubectl -n ${{ github.event.repository.name }} exec -it oraclelinux-69dc87457-wjb2h -- sh -c './open_gate_osscan_demo.sh'
       # check and store the status of the Deployment
       - name: Check deployment status
         id: status
-        uses: ilanssari/okubectl@check_deployment
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
           PROJECT_NAME: ${{ github.event.repository.name }}
+        run: chmod +x "${GITHUB_WORKSPACE}/.github/check_deployment.sh" && bash -c "${GITHUB_WORKSPACE}/.github/check_deployment.sh"
   # Write the status of the migration on the PR
   comment_to_pr:
     name: Write the status of the deployment on the PR
